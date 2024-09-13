@@ -1,0 +1,36 @@
+pip install qrcode
+python3 -m pip install fpdf
+python3 -m pip install pandas
+
+----------------------------------------------------------------------------------------
+
+
+import pandas as pd
+import qrcode
+from fpdf import FPDF
+
+archivo = "codigosqr_tar.xlsx"
+columnas_lectura = [0,1]
+df = pd.read_excel(archivo, header = 0, usecols = columnas_lectura)
+serie = df["codigos"].tolist()
+
+for i in range(4):
+    print ("Hola mundo "+ str(i))
+    qr = qrcode.QRCode(version=1,box_size=50,border=3)
+    qr.add_data(serie[i])
+    qr.make(fit=True)
+    img = qr.make_image(fill='black',back_color='white')
+    img.save('xqr_'+str(i+1)+'.png')
+
+class PDF(FPDF):
+    pass
+    def logo(self, name, x, y, w, h):
+        self.image(name, x, y, w, h)
+
+
+pdf = PDF()
+for j in range(4):
+    pdf.add_page()
+    pdf.logo('xqr_'+str(j+1)+'.png', 0, 0, 30, 30)
+
+pdf.output('qr_01.pdf','F')
